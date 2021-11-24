@@ -29,7 +29,7 @@ def value_calc(graph, node_label, prev_col):
 
 def pagerank(graph, provided_iterations=None):
     # init pagerank matrix and variables
-    num_iterations = 50 if not provided_iterations else provided_iterations
+    num_iterations = 100 if not provided_iterations else provided_iterations
     stopping_iter = None
     pagerank = pd.DataFrame(columns=[f"iter{iteration}" for iteration in range(
         num_iterations)], index=graph.nodes.keys())
