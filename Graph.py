@@ -32,14 +32,17 @@ class Graph:
     initialization_time = 0
     pagerank_calc_time = 0
     iterations = 0
+    snap = None
 
     def __init__(self, file_name):
         begin = time.perf_counter()
         if "wiki" in file_name or "p2p" in file_name or "soc" in file_name or "amazon" in file_name:
             print("SNAP detected")
+            self.snap = True
             with open(file_name, 'r') as file:
                 raw_data = file.readlines()
-                [self.node_generator(re.sub(r'(\d)\s+(\d)', r'\1 \2', line.rstrip()).split(' '), True) for line in raw_data]
+                # remove header comments from snap file.
+                [self.node_generator(re.sub(r'(\d)\s+(\d)', r'\1 \2', line.rstrip()).split(' '), True) for line in raw_data[4:]]
         else:
             with open(file_name, 'r') as file:
                 raw_data = file.readlines()
@@ -49,7 +52,7 @@ class Graph:
         self.initialization_time = end - begin
 
     # helper function for init. Feed in one line of a csv.
-    def node_generator(self, csv_line, snap=False):
+    def node_generator(self, csv_line, snap=False):        
         if snap:
             # snap datasets are formatted differently
             node_one_label = csv_line[0]
