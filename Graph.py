@@ -4,12 +4,14 @@ import time
 
 
 class Node:
-    outgoing_edges = set()
-    incoming_edges = set()
+    outgoing_edges= None
+    incoming_edges = None
     node_label = None
 
     def __init__(self, node_label):
         self.node_label = node_label
+        self.outgoing_edges = set()
+        self.incoming_edges = set()
 
     def add_edge(self, node_label, direction):
         # outgoing -> 0
@@ -18,11 +20,17 @@ class Node:
             self.incoming_edges.add(node_label)
         else:
             self.outgoing_edges.add(node_label)
+    
+    def print(self):
+        print(f"Node: {self.node_label}")
+        print(f"Incoming edges: {self.incoming_edges}")
+        print(f"Outgoing edges: {self.outgoing_edges}")
 
 
 class Graph:
     nodes = {}  # key -> node label, val -> node object
     initialization_time = 0
+    pagerank_calc_time = 0
 
     def __init__(self, file_name):
         begin = time.perf_counter()
@@ -53,7 +61,7 @@ class Graph:
             direction_one = int(csv_line[1])
             node_two_label = csv_line[2]
             direction_two = int(csv_line[3])
-
+        
         if node_one_label not in self.nodes:
             node_one = Node(node_one_label)
             self.nodes[node_one_label] = node_one
@@ -62,25 +70,18 @@ class Graph:
             node_two = Node(node_two_label)
             self.nodes[node_two_label] = node_two
 
-        if direction_one == direction_two:
+        if direction_one <= direction_two:
             # undirected graph
             # add outgoing edges to node
-            self.nodes[node_one_label].add_edge(node_two_label, 1)
-            self.nodes[node_two_label].add_edge(node_one_label, 1)
-            # add incoming edges to node
+            # should only have to had the line below since each two lines adds
             self.nodes[node_one_label].add_edge(node_two_label, 0)
-            self.nodes[node_two_label].add_edge(node_one_label, 0)
+            self.nodes[node_two_label].add_edge(node_one_label, 1)
         else:
-            # directed graph
-            if direction_one < direction_two:
-                self.nodes[node_one_label].add_edge(node_two_label, 1)
-                self.nodes[node_two_label].add_edge(node_two_label, 0)
-            else:
-                self.nodes[node_two_label].add_edge(node_one_label, 1)
-                self.nodes[node_one_label].add_edge(node_two_label, 0)
-
-
-if __name__ == "__main__":
-    g = Graph('./data/snap/amazon0505.txt')
-    print(g.initialization_time)
-    print(g.nodes['410209'].outgoing_edges)
+            # node one has incoming edge from two
+            self.nodes[node_one_label].add_edge(node_two_label, 1)
+            # node two has outgoing edge to one
+            self.nodes[node_two_label].add_edge(node_one_label, 0)
+    
+    
+    def set_pagerank_time(self, time):
+        self.pagerank_calc_time = time
