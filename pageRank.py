@@ -27,9 +27,9 @@ def value_calc(graph, node_label, prev_col):
 # returns -> a DataFrame with pagerank calculations.
 
 
-def pagerank(graph, num_iterations=None):
+def pagerank(graph, provided_iterations=None):
     # init pagerank matrix and variables
-    num_iterations = 50 if not num_iterations else num_iterations
+    num_iterations = 50 if not provided_iterations else provided_iterations
     stopping_iter = None
     pagerank = pd.DataFrame(columns=[f"iter{iteration}" for iteration in range(
         num_iterations)], index=graph.nodes.keys())
@@ -42,7 +42,8 @@ def pagerank(graph, num_iterations=None):
             graph, entry, pagerank[f'iter{iteration - 1}']))
         t = abs(pagerank[f'iter{iteration}'] -
                 pagerank[f'iter{iteration - 1}']).mean()
-        if t < threshold and iteration > 2:
+        # only break if user did not provide an iteration number.
+        if t < threshold and iteration > 2 and not provided_iterations:
             stopping_iter = iteration
             break
     end = time.perf_counter()
@@ -62,12 +63,22 @@ def initialize_graph(dataset):
 # graph -> graph returned from initialize_graph
 # df -> PageRank matrix returned from pagerank().
 # returns -> None
-def print_metrics(graph, df):
+def print_metrics(graph, df, verbose=False):
     series = df[df.columns[-1]].sort_values(ascending=False)
     indices = series.index
     values = series.values
-    for i in range(len(values)):
-        print("{} {} with pagerank: {}".format(i, indices[i], values[i]))
+    
+    if not g.snap or verbose:
+        for i in range(len(values)):
+            print("{} {} with pagerank: {}".format(i, indices[i], values[i]))
+    else:
+        for i in range(10):
+            print("{} {} with pagerank: {}".format(i, indices[i], values[i]))
+        print(".")
+        print(".")
+        print(".")
+        for i in range(10):
+            print("{} {} with pagerank: {}".format(len(values) - 10 + i, indices[len(values) - 10 + i], values[len(values) - 10 + i]))
     print("Read time: {:.6f} seconds".format(
         graph.initialization_time))
     print("Processing time: {:.6f} seconds".format(
@@ -80,7 +91,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser("PageRank calculation.")
     parser.add_argument('dataset', type=str,
                         help='path to the dataset to perform pagerank on.')
+    parser.add_argument('--iterations', '--i', type=int, help='Number of iterations to run PageRank for.')
+    parser.add_argument('--verbose', '--v', help='Option to display full output of program.', action="store_true")
     args = parser.parse_args()
     g = initialize_graph(args.dataset)
-    pr = pagerank(g)
-    print_metrics(g, pr)
+    pr = pagerank(g, args.iterations)
+    print_metrics(g, pr, args.verbose)
