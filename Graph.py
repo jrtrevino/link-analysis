@@ -32,6 +32,8 @@ class Graph:
     initialization_time = 0
     pagerank_calc_time = 0
     iterations = 0
+    threshold = 0
+    d_factor = 0
     snap = None
 
     def __init__(self, file_name):
@@ -93,3 +95,9 @@ class Graph:
 
     def set_iterations(self, iterations):
         self.iterations = iterations
+
+    def set_threshold(self, threshold):
+        self.threshold = threshold
+
+    def set_dfactor(self, d):
+        self.d_factor = d
