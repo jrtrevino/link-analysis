@@ -31,6 +31,7 @@ class Graph:
     nodes = {}  # key -> node label, val -> node object
     initialization_time = 0
     pagerank_calc_time = 0
+    iterations = 0
 
     def __init__(self, file_name):
         begin = time.perf_counter()
@@ -85,3 +86,6 @@ class Graph:
     
     def set_pagerank_time(self, time):
         self.pagerank_calc_time = time
+
+    def set_iterations(self, iterations):
+        self.iterations = iterations
