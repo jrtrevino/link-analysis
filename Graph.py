@@ -1,6 +1,7 @@
 import pandas as pd
 import re
 import time
+import sys
 
 
 class Node:
@@ -46,7 +47,7 @@ class Graph:
                 raw_data = file.readlines()
                 # remove header comments from snap file.
                 [self.node_generator(re.sub(
-                    r'(\d)\s+(\d)', r'\1 \2', line.rstrip()).split(' '), True) for line in raw_data[4:]]
+                    r'(\d)\s+(\d)+', r'\1 \2', line.rstrip()).split(' '), True) for line in raw_data[4:]]
         else:
             with open(file_name, 'r') as file:
                 raw_data = file.readlines()
@@ -61,6 +62,9 @@ class Graph:
             # snap datasets are formatted differently
             node_one_label = re.sub('[!@#"$]', '', csv_line[0]).lstrip()
             node_two_label = re.sub('[!@#$]', '', csv_line[1]).lstrip()
+            if "\t" in node_two_label:
+                idx = node_two_label.index('\t')
+                node_two_label = node_two_label[:idx + 1]
             direction_one = 0
             direction_two = 1
         else:
