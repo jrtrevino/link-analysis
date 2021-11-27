@@ -1,7 +1,12 @@
 from Graph import Graph
 import argparse
 import pandas as pd
+import sys
 import time
+
+
+from types import ModuleType, FunctionType
+from gc import get_referents
 
 
 # Calculate the PageRank of a provided "node" in a dataframe.
@@ -75,6 +80,7 @@ def print_metrics(graph, df, verbose=False):
     values = series.values
     print("d_factor: {}".format(graph.d_factor))
     print("episilon: {}".format(graph.threshold))
+    print("Size of graph (in bytes) : {:.6f}".format(getsize(graph)))
     print("{: <5} {: >20} {: >25}".format("", "Node", "PageRank"))
 
     if not g.snap or verbose:
@@ -96,6 +102,31 @@ def print_metrics(graph, df, verbose=False):
     print("Processing time: {:.6f} seconds".format(
         graph.pagerank_calc_time))
     print(f"Number of iterations: {graph.iterations}")
+
+
+# Custom objects know their class.
+# Function objects seem to know way too much, including modules.
+# Exclude modules as well.
+BLACKLIST = type, ModuleType, FunctionType
+
+
+def getsize(obj):
+    """sum size of object & members."""
+    if isinstance(obj, BLACKLIST):
+        raise TypeError(
+            'getsize() does not take argument of type: ' + str(type(obj)))
+    seen_ids = set()
+    size = 0
+    objects = [obj]
+    while objects:
+        need_referents = []
+        for obj in objects:
+            if not isinstance(obj, BLACKLIST) and id(obj) not in seen_ids:
+                seen_ids.add(id(obj))
+                size += sys.getsizeof(obj)
+                need_referents.append(obj)
+        objects = get_referents(*need_referents)
+    return size
 
 
 if __name__ == "__main__":
