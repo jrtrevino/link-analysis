@@ -1,9 +1,5 @@
 # link-analysis
 
-Joey Trevino, jrtrevin@calpoly.edu
-
-## About
-
 This program calculates the PageRank values and PageScores of all nodes in a dataset using the 
 PageRank algorithm.
 
